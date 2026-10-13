@@ -30,7 +30,7 @@ without root, and writes a QEMU wrapper into `tools/bin/`. Source the recorded
 environment before building:
 
 ```sh
-./tools/setup-env.sh        # once
+bash tools/setup-env.sh     # once (bash, not ./, so it works on a fresh clone)
 . tools/env.sh              # each shell
 ```
 
@@ -38,9 +38,10 @@ environment before building:
 
 If you cloned this repository instead of working from the original tree, the
 helper scripts may have lost their executable bits (the initial upload went
-through the GitHub API, which does not record file modes). Every `make` target
-invokes them as `bash tools/...`, so this only affects running them by hand:
-`chmod +x tools/*.sh tools/tests/*.sh` restores that, or just use `bash <script>`.
+through the GitHub API, which does not record file modes). Every documented
+command invokes them as `bash tools/...`, so this does not affect setup, build
+or test. To run them as `./tools/...` instead, restore the bits once:
+`chmod +x tools/*.sh tools/tests/*.sh`.
 
 **No usable font?** `make` searches the usual console-font directories and
 validates each candidate's header (many `kbd` fonts are named `*8x16*` but are
