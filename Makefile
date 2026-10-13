@@ -30,6 +30,10 @@ $(BUILD)/stage2.bin: boot/stage2.asm | $(BUILD)
 
 # ---- font (generated from a PSF console font) ----
 $(FONTSRC): tools/psf2c.py | $(BUILD)
+	@test -n "$(FONT_PSF)" || { \
+	    echo "ERROR: no 8px-wide PSF console font found."; \
+	    echo "       run tools/setup-env.sh, or set FONT_PSF=/path/to/8x16-font.psf.gz"; \
+	    exit 1; }
 	$(PYTHON) tools/psf2c.py $(FONT_PSF) $@
 
 # ---- kernel ----
@@ -65,13 +69,14 @@ $(BUILD) $(BUILD)/obj:
 	mkdir -p $@
 
 run: all
-	AURORA_MODE=window ./tools/qemu.sh
+	AURORA_MODE=window bash tools/qemu.sh
 
 test: all
-	./tools/tests/run_all.sh
+	bash tools/tests/run_all.sh
 
 clean:
 	rm -rf $(BUILD)
 
-FONT_PSF ?= $(shell ./tools/find_font.sh)
+# `bash` (not `./`) so a fresh clone without the executable bit still builds.
+FONT_PSF ?= $(shell bash tools/find_font.sh)
 export FONT_PSF

@@ -3,9 +3,9 @@
 set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
-./tools/qstop.sh
+bash tools/qstop.sh
 rm -f build/serial.log build/mon.sock
-AURORA_HTTP_FWD=$((23000 + $$ % 900)) ./tools/qemu.sh &
+AURORA_HTTP_FWD=$((23000 + $$ % 900)) bash tools/qemu.sh &
 QPID=$!
 sleep "${1:-5}"
 shift

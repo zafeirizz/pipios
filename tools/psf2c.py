@@ -26,11 +26,15 @@ def load(path):
     raise SystemExit(f'not a PSF font: {path}')
 
 def main():
-    if len(sys.argv) != 3:
-        raise SystemExit('usage: psf2c.py <font.psf[.gz]> <out.c>')
-    src, out = sys.argv[1], sys.argv[2]
-    if len(sys.argv) >= 3 and src.endswith(('.psf', '.psf.gz')):
-        pass
+    argv = sys.argv[1:]
+    check_only = False
+    if argv and argv[0] in ('--check', '-c'):
+        check_only = True
+        argv = argv[1:]
+    if len(argv) != (1 if check_only else 2):
+        raise SystemExit('usage: psf2c.py [--check] <font.psf[.gz]> [out.c]')
+    src = argv[0]
+    out = None if check_only else argv[1]
     r = load(src)
     if len(r) == 3:
         count, charsize, glyphs = r
@@ -38,7 +42,16 @@ def main():
     else:
         count, charsize, glyphs, width, height = r
     if width != 8:
-        raise SystemExit(f'need an 8px-wide font, got {width}px')
+        msg = f'{src}: {width}x{height}, not 8 px wide'
+        if check_only:
+            print(f'psf2c: {msg}', file=sys.stderr)
+            sys.exit(1)
+        raise SystemExit(
+            f'psf2c: {msg}; the kernel renderer needs an 8px-wide font\n'
+            f'       (choose one with FONT_PSF=/path/to/font.psf.gz)')
+    if check_only:
+        print(f'psf2c: {src}: {width}x{height}, usable')
+        return
     rows = charsize // height if height else 1
     # normalize to 256 glyphs x `height` bytes
     gsz = charsize
