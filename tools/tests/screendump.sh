@@ -9,7 +9,7 @@ shift 3 || true
 export AURORA_HTTP_FWD=$((21000 + $$ % 900))
 rm -f build/serial.log build/mon.sock "$OUT"
 
-./tools/qemu.sh & QPID=$!
+bash tools/qemu.sh & QPID=$!
 cleanup() { kill "$QPID" 2>/dev/null; sleep 0.3; kill -9 "$QPID" 2>/dev/null; wait "$QPID" 2>/dev/null; }
 trap cleanup EXIT
 

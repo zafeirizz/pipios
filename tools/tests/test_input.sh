@@ -10,7 +10,7 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 export AURORA_HTTP_FWD=$((19000 + $$ % 900))
 rm -f build/serial.log build/mon.sock
-./tools/qemu.sh &
+bash tools/qemu.sh &
 QPID=$!
 cleanup() { kill "$QPID" 2>/dev/null; sleep 0.3; kill -9 "$QPID" 2>/dev/null; wait "$QPID" 2>/dev/null; }
 trap cleanup EXIT

@@ -7,7 +7,7 @@ MARKER="${1:-AURORA-M1-PASS}"
 TIMEOUT="${2:-30}"
 export AURORA_HTTP_FWD=$((18000 + $$ % 1000))
 rm -f build/serial.log build/mon.sock
-./tools/qemu.sh &
+bash tools/qemu.sh &
 QPID=$!
 cleanup() {
   kill "$QPID" 2>/dev/null
