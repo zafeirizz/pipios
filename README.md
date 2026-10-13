@@ -22,7 +22,8 @@ driver), HTML browser, and the package/porting system.
 
 `gcc`, `binutils` (`ld`, `objcopy`), `nasm`, `python3`, `qemu-system-x86_64` with
 SeaBIOS firmware, `socat` (monitor injection used by the tests), `dosfstools` +
-`mtools` (used when building the disk image), and any 8x16 PSF console font.
+`mtools` (used when building the disk image), and an 8x16 PSF console font
+(the kernel's renderer draws 8-pixel-wide glyphs, so the font must be 8 wide).
 
 `tools/setup-env.sh` installs all of this user-locally into `$HOME/sysroot`
 without root, and writes a QEMU wrapper into `tools/bin/`. Source the recorded
@@ -35,9 +36,16 @@ environment before building:
 
 ## Build, run, test
 
-If you cloned this repository instead of working from the original tree, restore
-the executable bits on the helper scripts once (`chmod +x tools/*.sh tools/tests/*.sh`).
-The initial upload went through the GitHub API, which does not record file modes.
+If you cloned this repository instead of working from the original tree, the
+helper scripts may have lost their executable bits (the initial upload went
+through the GitHub API, which does not record file modes). Every `make` target
+invokes them as `bash tools/...`, so this only affects running them by hand:
+`chmod +x tools/*.sh tools/tests/*.sh` restores that, or just use `bash <script>`.
+
+**No usable font?** `make` searches the usual console-font directories and
+validates each candidate's header (many `kbd` fonts are named `*8x16*` but are
+actually 16 px wide). To use a specific font, override it:
+`make FONT_PSF=/usr/share/consolefonts/Uni2-Fixed16.psf.gz`.
 
 ```sh
 make                        # builds build/disk.img (bootloader + kernel + FAT32 assets)
@@ -46,9 +54,9 @@ AURORA_MODE=vnc make run    # boot with a VNC display on :5
 make test                   # full suite: M1..M6 boots, PS/2 input, GUI screendump
 
 # useful extras
-AURORA_MODE=headless ./tools/qemu.sh          # serial -> build/serial.log, monitor -> build/mon.sock
-tools/tests/test_boot.sh AURORA-M4-PASS 90    # wait for one milestone marker
-tools/tests/screendump.sh AURORA-M6-PASS build/gui.ppm 120
+AURORA_MODE=headless bash tools/qemu.sh       # serial -> build/serial.log, monitor -> build/mon.sock
+bash tools/tests/test_boot.sh AURORA-M4-PASS 90    # wait for one milestone marker
+bash tools/tests/screendump.sh AURORA-M6-PASS build/gui.ppm 120
 python3 tools/ppm2png.py build/gui.ppm build/gui.png
 ```
 
